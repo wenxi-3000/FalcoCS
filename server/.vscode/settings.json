@@ -1,0 +1,6 @@
+{
+    "go.inferGopath": false
+    "files.associations": {
+        "*.tmpl": "html"
+    }
+}

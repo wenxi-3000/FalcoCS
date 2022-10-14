@@ -1,0 +1,57 @@
+{{ template "base.html" . }}
+{{ define "content" }}
+
+<div class="container">
+    <div class="card shadow border-2">
+        <div class="card-body">
+
+            <div class="panel-heading mb-4">
+                <div class="row border-bottom pb-2">
+                    <div class="col col-xs-6">
+                        <h1 class="h2">Connected Devices</h1>
+                    </div>
+                    <div class="col col-xs-6 text-right">
+                        <a class="btn btn-lg btn-primary" href="/devices" role="button" data-placement="bottom" data-toggle="tooltip" title="Refresh connected devices">Refresh</a>
+                    </div>
+                </div>
+            </div>
+
+            <table id="default-table" class="table table-striped table-bordered table-responsive-sm">
+                <thead>
+                <tr>
+                    <th scope="col">Mac Address</th>
+                    <th scope="col">Node IP</th>
+                    <th scope="col">Hostname</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {{ with .Devices }}
+                    {{ range . }}
+                        <tr>
+                            <td>{{ .MacAddress }}</td>
+                            <td>{{ .NodeIP }}</td>
+                            <td>{{ .Hostname }}</td>
+                        </tr>
+                    {{ end }}
+                {{ end }}
+
+                </tbody>
+                <tfoot>
+                <tr>
+                    {{ $length := len .Devices }} {{ if eq $length 0 }}
+                        <td colspan="12" class="text-center"><h6>No connected devices.</h6></td>
+                    {{ $length := len .Devices }} {{ else if eq $length 1 }}
+                        <td colspan="12" class="text-center"><h6>Showing {{ $length }} connected device.</h6></td>
+                    {{ else }}
+                        <td colspan="12" class="text-center"><h6>Showing {{ $length }} connected devices.</h6></td>
+                    {{ end }}
+                </tr>
+                </tfoot>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+{{ end }}

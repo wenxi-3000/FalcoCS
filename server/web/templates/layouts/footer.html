@@ -1,0 +1,9 @@
+{{ define "footer" }}
+<footer id="sticky-footer" class="footer">
+    <div class="container text-center">
+        <span id="footer" class="text-muted">FalcoCS (</span>
+        <script>document.getElementById('footer').appendChild(
+            document.createTextNode(new Date().getFullYear().toString() + ")"))</script>
+    </div>
+</footer>
+{{ end }}
