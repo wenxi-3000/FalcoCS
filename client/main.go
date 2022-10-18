@@ -2,8 +2,7 @@ package main
 
 import (
 	"bytes"
-	"client/device"
-	"client/falco"
+	"client/connect"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -11,15 +10,21 @@ import (
 	"time"
 )
 
+var (
+	ServerIP   = "172.16.42.150"
+	ServerPort = "8081"
+)
+
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	device := device.NewDevice()
-	falco := falco.NewFalco()
-	go doSenderDevice(device)
-	go doSenderFalco(falco)
-	for {
-		time.Sleep(10 * time.Second)
-	}
+	connect.Connect(ServerIP, ServerPort)
+	// device := device.NewDevice()
+	// falco := falco.NewFalco()
+	// go doSenderDevice(device)
+	// go doSenderFalco(falco)
+	// for {
+	// 	time.Sleep(10 * time.Second)
+	// }
 }
 
 func doSenderFalco(falco []byte) {
@@ -32,7 +37,7 @@ func doSenderFalco(falco []byte) {
 func SenderFalco(falco []byte) {
 	data := bytes.NewBuffer([]byte(falco))
 
-	url := "http://172.16.42.150:8081/falco"
+	url := "http://" + ServerIP + ":" + ServerPort + "/falco"
 	request, err := http.NewRequest("POST", url, data)
 	if err != nil {
 		log.Println(err)
@@ -71,7 +76,7 @@ func SenderDevice(device []byte) {
 	// }
 	data := bytes.NewBuffer([]byte(device))
 
-	url := "http://172.16.42.150:8081/device"
+	url := "http://" + ServerIP + ":" + ServerPort + "/device"
 	request, err := http.NewRequest("POST", url, data)
 	if err != nil {
 		log.Println(err)

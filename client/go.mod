@@ -2,7 +2,10 @@ module client
 
 go 1.18
 
-require github.com/shirou/gopsutil v3.21.11+incompatible
+require (
+	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
+	github.com/shirou/gopsutil v3.21.11+incompatible
+)
 
 require (
 	github.com/go-ole/go-ole v1.2.6 // indirect

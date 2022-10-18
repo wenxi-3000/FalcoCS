@@ -6,6 +6,7 @@ import (
 	"server/dao"
 	"server/dao/sql"
 	"server/libs"
+	"server/listener"
 	"server/service/serviceimpl"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,9 @@ func main() {
 	opt := libs.NewOptions()
 	//初始化数据库
 	opt.DB = dao.InitDB(*opt)
+
+	//tcp连接池
+	listener := listener.Newlistener(libs.ServerIP, libs.ServerPort)
 
 	//初始化设备业务层，存储层
 	deviceDao := sql.NewDeviceDao(opt.DB)
@@ -45,7 +49,7 @@ func main() {
 	// router.LoadHTMLGlob("web/templates/**/*")
 	router.HTMLRender = libs.LoadTemplates("web/templates")
 	// router.POST("/device", controller.SetDeviceHandler)
-	controller.NewController(router, opt, deviceService, resourceService, falcoService)
+	controller.NewController(router, opt, deviceService, resourceService, falcoService, listener)
 	// router.POST("/collection", func(c *gin.Context) {
 	// 	json := PostJsonData{}
 	// 	c.BindJSON(&json)

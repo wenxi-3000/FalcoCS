@@ -12,4 +12,6 @@ const (
 	DatabaseType      = "sqlite"
 	AppName           = "FalcoCS"
 	ResourcesPath     = "conf/resources.yaml"
+	ServerIP          = "172.16.42.150"
+	ServerPort        = "8081"
 )

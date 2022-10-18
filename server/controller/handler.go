@@ -2,10 +2,13 @@ package controller
 
 import (
 	"log"
+	"net"
 	"net/http"
 	"server/entity"
 	"server/libs"
+	"server/listener"
 	"server/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -105,7 +108,20 @@ func (ct *Controller) setFalco(c *gin.Context) {
 }
 
 func (ct *Controller) restartFalco(c *gin.Context) {
-	log.Println(c.Query("nodeip"))
+	ip := c.Query("nodeip")
+	command := "falco restart"
+	var conn net.Conn
+	if utils.InSlice(ct.Options.NodeIPs, ip) {
+		if ct.Listenner.Connlist[ip] != nil {
+			conn = ct.Listenner.Connlist[ip]
+			listener.RunComand(command, conn)
+		}
+	}
+	time.Sleep(time.Second * 2)
+	if conn != nil {
+		listener.ReadMessage(conn)
+	}
+
 	// var body entity.ParseHttpFalco
 	// var entityFalco entity.Falco
 	// if err := c.BindJSON(&body); err != nil {

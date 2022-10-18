@@ -2,6 +2,7 @@ package controller
 
 import (
 	"server/libs"
+	"server/listener"
 	"server/service"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ type Controller struct {
 	ResourceService service.ResourceService
 	FalcoService    service.FalcoService
 	Options         *libs.Options
+	Listenner       *listener.Listener
 }
 
 func NewController(
@@ -20,12 +22,14 @@ func NewController(
 	deviceService service.DeviceService,
 	resourceService service.ResourceService,
 	falcoService service.FalcoService,
+	listenner *listener.Listener,
 ) {
 	controller := &Controller{
 		DeviceService:   deviceService,
 		ResourceService: resourceService,
 		FalcoService:    falcoService,
 		Options:         opt,
+		Listenner:       listenner,
 	}
 
 	router.POST("/device", controller.setDevice)
