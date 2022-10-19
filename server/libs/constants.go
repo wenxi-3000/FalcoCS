@@ -14,4 +14,5 @@ const (
 	ResourcesPath     = "conf/resources.yaml"
 	ServerIP          = "172.16.42.150"
 	ServerPort        = "8081"
+	ClientName        = "falcoc"
 )

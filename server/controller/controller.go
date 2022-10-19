@@ -39,6 +39,8 @@ func NewController(
 	router.GET("/resources", controller.getResources)
 	router.POST("/falco", controller.setFalco)
 	router.GET("/falco/restart", controller.restartFalco)
+	router.GET("/generate", controller.getGenerate)
+	router.POST("/generate", controller.generateClient)
 
 	// router.GET("/layouts/base", func(c *gin.Context) {
 	// 	log.Println("xxxxxxxxxxxx")

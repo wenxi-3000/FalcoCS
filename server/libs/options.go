@@ -8,12 +8,15 @@ import (
 )
 
 type Options struct {
-	DBType       string
-	DBPath       string
-	DB           *gorm.DB
-	Resources    []Resources
-	NodeIPs      []string
-	ClusterNames []string
+	DBType        string
+	DBPath        string
+	DB            *gorm.DB
+	Resources     []Resources
+	NodeIPs       []string
+	ClusterNames  []string
+	ServerPort    string
+	ServerAddress string
+	ClientName    string
 }
 
 type ReceiveClient struct {
@@ -29,6 +32,9 @@ func NewOptions() *Options {
 	var opt Options
 	opt.DBType = DatabaseType
 	opt.DBPath = DatabaseDirectory + "/" + DatabaseName
+	opt.ServerPort = ServerPort
+	opt.ServerAddress = ServerIP
+	opt.ClientName = ClientName
 	//初始化目录
 	if err := MakeDir(TmpDirectory, DatabaseDirectory); err != nil {
 		log.Println(err)

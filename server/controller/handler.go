@@ -8,6 +8,7 @@ import (
 	"server/libs"
 	"server/listener"
 	"server/utils"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -139,6 +140,25 @@ func (ct *Controller) restartFalco(c *gin.Context) {
 	// entityFalco.Falco = body.Falco
 
 	// ct.FalcoService.Insert(entityFalco)
+
+}
+
+func (ct *Controller) getGenerate(c *gin.Context) {
+	c.HTML(http.StatusOK, "generate.html", gin.H{
+		"Address":  ct.Options.ServerAddress,
+		"Port":     strings.ReplaceAll(ct.Options.ServerPort, ":", ""),
+		"Filename": ct.Options.ClientName,
+	})
+}
+
+func (ct *Controller) generateClient(c *gin.Context) {
+
+	log.Println(c.PostForm("filename"))
+	var clientGenerate entity.GenerateClient
+	if err := c.ShouldBind(&clientGenerate); err != nil {
+		log.Println(err)
+	}
+	log.Println(clientGenerate)
 
 }
 
