@@ -14,6 +14,41 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (ct *Controller) getLogin(c *gin.Context) {
+	c.HTML(http.StatusOK, "login.html", gin.H{})
+}
+
+func (ct *Controller) postAuth(c *gin.Context) {
+	var user libs.UserInfo
+	err := c.ShouldBind(&user)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 2001,
+			"msg":  "无效的参数",
+		})
+		return
+	}
+	if user.Username == ct.Options.UserInfo.Username && user.Password == ct.Options.UserInfo.Password {
+		// 生成Token
+		tokenString, err := libs.GenToken(user.Username)
+		c.SetCookie("Authorization", tokenString, 3600, "/", "*", false, true)
+		if err != nil {
+			log.Println(err)
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"code": 2000,
+			"msg":  "success",
+			"data": gin.H{"token": tokenString},
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 2002,
+		"msg":  "鉴权失败",
+	})
+
+}
+
 func (ct *Controller) setDevice(c *gin.Context) {
 	var body libs.ReceiveClient
 	var entityDevice entity.Device

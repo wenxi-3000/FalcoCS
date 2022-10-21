@@ -17,6 +17,12 @@ type Options struct {
 	ServerPort    string
 	ServerAddress string
 	ClientName    string
+	UserInfo      UserInfo
+}
+
+type UserInfo struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type ReceiveClient struct {
@@ -35,6 +41,8 @@ func NewOptions() *Options {
 	opt.ServerPort = ServerPort
 	opt.ServerAddress = ServerIP
 	opt.ClientName = ClientName
+	opt.UserInfo.Username = LoginUsername
+	opt.UserInfo.Password = LoginPassword
 	//初始化目录
 	if err := MakeDir(TmpDirectory, DatabaseDirectory); err != nil {
 		log.Println(err)

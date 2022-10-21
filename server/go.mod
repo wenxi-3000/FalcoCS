@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/gin-contrib/multitemplate v0.0.0-20220829131020-8c2a8441bc2b
 	github.com/gin-gonic/gin v1.8.1
+	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/mitchellh/go-homedir v1.1.0
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/sqlite v1.4.1

