@@ -9,4 +9,5 @@ type FalcoService interface {
 	//Insert(entity.Device) error
 	Insert(entity.Falco)
 	GetUpdateTime(string) time.Time
+	FindAddressByIp(string) (string, error)
 }

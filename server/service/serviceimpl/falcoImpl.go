@@ -16,8 +16,8 @@ func NewFalcoService(dF dao.Falco) service.FalcoService {
 }
 
 func (d falcoService) Insert(input entity.Falco) {
-	result := d.falcoDao.FindByIP(input.NodeIP)
-	if result.NodeIP == "" {
+	result := d.falcoDao.FindByIP(input.NodeIp)
+	if result.NodeIp == "" {
 		d.falcoDao.Insert(input)
 	}
 	d.falcoDao.Update(input)
@@ -27,4 +27,9 @@ func (d falcoService) Insert(input entity.Falco) {
 func (d falcoService) GetUpdateTime(ip string) time.Time {
 	result := d.falcoDao.GetUpdateTime(ip)
 	return result.UpdatedAt
+}
+
+func (d falcoService) FindAddressByIp(ip string) (string, error) {
+	falco := d.falcoDao.FindByIP(ip)
+	return falco.ClientID, nil
 }

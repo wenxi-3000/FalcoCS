@@ -37,7 +37,13 @@ func (d falcoDao) Update(input entity.Falco) {
 
 func (d falcoDao) FindByIP(ip string) entity.Falco {
 	var falco entity.Falco
-	d.dbClient.Where(entity.Falco{NodeIP: ip}).First(&falco)
+	d.dbClient.Where(entity.Falco{NodeIp: ip}).First(&falco)
+	return falco
+}
+
+func (d falcoDao) FindByAdrees(address string) entity.Falco {
+	var falco entity.Falco
+	d.dbClient.Where(entity.Falco{ClientID: address}).First(&falco)
 	return falco
 }
 

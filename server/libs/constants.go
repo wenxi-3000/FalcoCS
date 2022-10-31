@@ -19,4 +19,5 @@ const (
 	LoginPassword       = "admin"
 	JwtSecret           = "ShadowFl0w"
 	TokenExpireDuration = time.Hour * 24
+	ClientToken         = "fuckxbz"
 )

@@ -3,7 +3,7 @@ module client
 go 1.18
 
 require (
-	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
+	github.com/gorilla/websocket v1.5.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 )
 

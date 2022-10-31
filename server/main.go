@@ -34,6 +34,8 @@ func main() {
 	falcoDao := sql.NewFalcoDao(opt.DB)
 	falcoService := serviceimpl.NewFalcoService(falcoDao)
 
+	//初始化client
+	clientService := serviceimpl.NewClientService(opt)
 	//初始化device
 	// deviceDao := sql.NewDeviceDao(opt.DB)
 	// deviceService := serviceimpl.NewDeviceService(deviceDao)
@@ -49,7 +51,7 @@ func main() {
 	// router.LoadHTMLGlob("web/templates/**/*")
 	router.HTMLRender = libs.LoadTemplates("web/templates")
 	// router.POST("/device", controller.SetDeviceHandler)
-	controller.NewController(router, opt, deviceService, resourceService, falcoService, listener)
+	controller.NewController(router, opt, deviceService, resourceService, falcoService, listener, clientService)
 	// router.POST("/collection", func(c *gin.Context) {
 	// 	json := PostJsonData{}
 	// 	c.BindJSON(&json)

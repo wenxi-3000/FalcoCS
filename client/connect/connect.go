@@ -1,119 +1,122 @@
 package connect
 
 import (
-	"bufio"
-	"encoding/base64"
+	"client/device"
+	"crypto/tls"
+	"fmt"
 	"log"
-	"net"
+	"net/http"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
-// var (
-// 	// cmd执行超时的秒数
-// 	Timeout = 30 * time.Second
-// 	charset = "utf-8"
-// 	IP      string
-// 	ConChan chan net.Conn
-// )
-
-type runner struct {
-	timeout   time.Duration
-	gerrors   chan error
-	charset   string
-	ipPort    string
-	conChan   chan net.Conn
-	Connected bool
+type Connector interface {
+	KeepConnection()
+	HandleCommand()
 }
 
-func new(ip string, port string) (*runner, error) {
-	r := runner{
+type connector struct {
+	timeout     time.Duration
+	gerrors     chan error
+	charset     string
+	ipPort      string
+	websockconn *websocket.Conn
+	connected   bool
+	token       string
+	httpClient  *http.Client
+	rootUri     string
+	clientId    string
+}
+
+func NewConnector(ip string, port string, token string) Connector {
+	c := connector{
 		gerrors: make(chan error),
 		timeout: 30 * time.Second,
 		charset: "utf-8",
 		ipPort:  ip + ":" + port,
-		conChan: make(chan net.Conn),
+		token:   token,
 	}
+	c.rootUri = "http://" + c.ipPort
+	c.httpClient = NewHttpClient(10)
+	c.clientId, _ = device.GetMacAddress()
 
-	return &r, nil
+	return &c
 }
 
-//创建于serer端的tcp连接
-func Connect(ip string, port string) {
-	runner, err := new(ip, port)
-	if err != nil {
-		log.Println(err)
-	}
-
-	//开始连接
-	go runner.buildConect()
-
-	for conn := range runner.conChan {
-		log.Println(conn)
-		log.Println("连接成功......")
-		message, _ := bufio.NewReader(conn).ReadString('\n')
-		decodedCase, _ := base64.StdEncoding.DecodeString(message)
-		out, err := RunCommandWithErr(string(decodedCase))
-		if err != nil {
-			log.Println(err)
-		}
-		log.Println(out)
-		base64Out := base64.StdEncoding.EncodeToString([]byte(out))
-		log.Println(base64Out)
-		conn.Write([]byte(base64Out + "\n"))
-		// buf := make([]byte, 4096)
-		// n, _ := conn.Read(buf)
-		// log.Println(base64.StdEncoding.DecodeString(string(buf[:n])))
-	}
-
-	// go runner.doConnect()
-	log.Println("xxxxxxxxxx")
-	for {
-		time.Sleep(10 * time.Second)
+func NewHttpClient(timeout time.Duration) *http.Client {
+	return &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+		Timeout: time.Second * timeout,
 	}
 }
 
-func (r *runner) buildConect() {
-
-	for {
-		if len(r.conChan) < 1 {
-			conn, _ := net.Dial("tcp", r.ipPort)
-			// if err != nil {
-			// 	fmt.Println(err)
-			// }
-			if conn != nil {
-				r.conChan <- conn
-			}
-		}
-
-		time.Sleep(r.timeout)
-	}
-
-}
-
-func (r *runner) KeepConnection() {
+func (c *connector) KeepConnection() {
 	sleepTime := 30 * time.Second
 
 	for {
-		if r.Connected {
+		if c.connected {
 			time.Sleep(sleepTime)
 		}
 
-		err := h.ServerIsAvailable()
+		err := c.health()
 		if err != nil {
-			h.Log("[!] Error connecting with server: " + err.Error())
-			h.Connected = false
+			log.Println("[!] Error connecting with server: " + err.Error())
+			c.connected = false
 			time.Sleep(sleepTime)
 			continue
 		}
 
-		err = h.SendDeviceSpecs()
+		err = c.sender()
 		if err != nil {
-			h.Log("[!] Error connecting with server: " + err.Error())
-			h.Connected = false
+			log.Println("[!] Error connecting with server: " + err.Error())
+			c.connected = false
 			time.Sleep(sleepTime)
 			continue
 		}
 
-		h.Connected = true
+		err = c.SendFalco()
+		if err != nil {
+			log.Println("[!] Error send falco: " + err.Error())
+			time.Sleep(3 * time.Second)
+			continue
+		}
+
+		c.connected = true
 	}
+}
+
+//判断服务端是否能正常访问
+func (c *connector) health() error {
+	url := c.rootUri + "/health"
+
+	log.Println(url)
+	resp, err := c.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+	if resp.code != http.StatusOK {
+		return fmt.Errorf(string(resp.body))
+	}
+	log.Println("[!]health check status OK: ", resp.code)
+	return nil
+}
+
+//发送采集的客户端信息到服务端
+func (c *connector) sender() error {
+	device := device.NewDevice()
+	url := c.rootUri + "/device"
+	resp, err := c.NewRequest(http.MethodPost, url, device)
+	if err != nil {
+		return err
+	}
+
+	if resp.code != http.StatusOK {
+		return fmt.Errorf("error with status code %d", resp.code)
+	}
+	return nil
 }

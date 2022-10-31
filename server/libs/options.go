@@ -18,6 +18,7 @@ type Options struct {
 	ServerAddress string
 	ClientName    string
 	UserInfo      UserInfo
+	Token         string
 }
 
 type UserInfo struct {
@@ -43,6 +44,7 @@ func NewOptions() *Options {
 	opt.ClientName = ClientName
 	opt.UserInfo.Username = LoginUsername
 	opt.UserInfo.Password = LoginPassword
+	opt.Token = ClientToken
 	//初始化目录
 	if err := MakeDir(TmpDirectory, DatabaseDirectory); err != nil {
 		log.Println(err)

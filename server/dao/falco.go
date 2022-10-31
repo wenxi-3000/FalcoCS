@@ -5,6 +5,7 @@ import "server/entity"
 type Falco interface {
 	Insert(entity.Falco)
 	FindByIP(string) entity.Falco
+	FindByAdrees(string) entity.Falco
 	// FindByMacAddress(address string) entity.Device
 	Update(entity.Falco)
 	GetUpdateTime(string) entity.Falco

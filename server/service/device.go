@@ -10,4 +10,6 @@ type DeviceService interface {
 	Insert(entity.Device)
 	FindAll() []entity.Device
 	GetUpdateTime(string) time.Time
+	FindAddressByIp(ip string) (string, error)
+	FindIPByAddress(address string) (string, error)
 }

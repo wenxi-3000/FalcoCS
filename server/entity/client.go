@@ -1,7 +1,7 @@
 package entity
 
 type GenerateClient struct {
-	Address  string `form:"address"`
-	Port     string `form:"port"`
-	Filename string `form:"filename"`
+	Address  string `json:"address"`
+	Port     string `json:"port"`
+	Filename string `json:"filename"`
 }

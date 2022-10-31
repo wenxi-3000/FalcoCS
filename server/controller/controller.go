@@ -14,6 +14,7 @@ type Controller struct {
 	FalcoService    service.FalcoService
 	Options         *libs.Options
 	Listenner       *listener.Listener
+	ClientService   service.ClientService
 }
 
 func NewController(
@@ -23,6 +24,7 @@ func NewController(
 	resourceService service.ResourceService,
 	falcoService service.FalcoService,
 	listenner *listener.Listener,
+	clientService service.ClientService,
 ) {
 	controller := &Controller{
 		DeviceService:   deviceService,
@@ -30,21 +32,25 @@ func NewController(
 		FalcoService:    falcoService,
 		Options:         opt,
 		Listenner:       listenner,
+		ClientService:   clientService,
 	}
 	router.GET("/login", controller.getLogin)
+	router.GET("/health", controller.getHealth)
 	router.POST("auth", controller.postAuth)
+	router.GET("/client", controller.clientHandler)
+	router.POST("/device", controller.setDevice)
+	router.POST("/falco", controller.setFalco)
 	authGroup := router.Group("")
 	authGroup.Use(libs.JWTAuthMiddleware())
 	{
 		authGroup.GET("/", controller.getResources)
-		authGroup.POST("/device", controller.setDevice)
 		authGroup.GET("/devices", controller.getDevices)
 		authGroup.GET("/resources/update", controller.resourcesUpdate)
 		authGroup.GET("/resources", controller.getResources)
-		authGroup.POST("/falco", controller.setFalco)
 		authGroup.GET("/falco/restart", controller.restartFalco)
 		authGroup.GET("/generate", controller.getGenerate)
 		authGroup.POST("/generate", controller.generateClient)
+		authGroup.POST("/command", controller.sendCommand)
 	}
 
 	// router.GET("/layouts/base", func(c *gin.Context) {

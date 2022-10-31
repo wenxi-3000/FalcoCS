@@ -53,6 +53,16 @@ func (d deviceService) Insert(input entity.Device) {
 	// log.Println(err)
 }
 
+func (d deviceService) FindAddressByIp(ip string) (string, error) {
+
+	return "", nil
+}
+
+func (d deviceService) FindIPByAddress(address string) (string, error) {
+	device := d.deviceDao.FindByMacAddress(address)
+	return device.NodeIP, nil
+}
+
 func (d deviceService) FindAll() []entity.Device {
 	devices := d.deviceDao.FindAll(time.Now().Add(time.Minute * time.Duration(-3)))
 	// for index, device := range devices {

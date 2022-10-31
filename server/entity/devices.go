@@ -5,5 +5,5 @@ type Device struct {
 	NodeIP     string
 	Hostname   string
 	MacAddress string
-	ClientIP   string
+	ClientIPS  string
 }

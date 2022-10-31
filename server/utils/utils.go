@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/base64"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -58,4 +59,33 @@ func InSlice(items []string, item string) bool {
 		}
 	}
 	return false
+}
+
+func SliceToString(items []string) string {
+	var result string
+	for _, item := range items {
+		result = result + "," + item
+	}
+	return result
+}
+
+func GetHostIp(ips []string, noteIPs []string) (string, error) {
+	log.Println(ips)
+	if len(ips) == 0 {
+		return "", fmt.Errorf("client ip is null")
+	}
+	if len(ips) == 1 && InSlice(noteIPs, ips[0]) {
+		return ips[0], nil
+	}
+
+	if len(ips) > 1 {
+		for _, ip := range ips {
+			if InSlice(noteIPs, ip) {
+				return ip, nil
+			}
+		}
+	}
+
+	return "", fmt.Errorf("find ip error")
+
 }
