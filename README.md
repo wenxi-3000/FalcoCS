@@ -1,14 +1,20 @@
 FalcoCS是一个用于管理云原生运行时安全项目[Falco](https://github.com/falcosecurity/falco)的系统。用于健康检测、规则更新、资源监控以及falco安装与更新
 <br>
 <br>
-Client端通过HTTP请求发送健康信息。通过websocket进行下发命令，获取执行结果
+Client端通过HTTP请求发送健康信息。通过websocket进行下发命令，获取执行结果。
+<br>
+<br>
+如果是手动运行falco，falco需要以以下命令运行，官方镜像默认是如下命令不用管
+```
+/usr/bin/falco
+```
 
 <br>
 <br>
 
 
 ## Client
-client安装
+client运行
 ```
 cd client
 go run main.go
